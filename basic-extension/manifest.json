@@ -3,7 +3,20 @@
     "name": "Brainrot Shield Test",
     "version": "1.0",
     "description": "Testing our first extension",
+    "permissions": ["tabs"],
+    "content_scripts": [
+      {
+        "matches": ["https://www.instagram.com/*"],
+        "js": ["content.js"]
+      }
+    ],
     "action": {
       "default_popup": "popup.html"
-    }
+    },
+    "web_accessible_resources": [
+      {
+        "resources": ["images/*"],
+        "matches": ["<all_urls>"]
+      }
+    ]
   }

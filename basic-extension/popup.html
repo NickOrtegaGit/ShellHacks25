@@ -7,18 +7,60 @@
             width: 300px;
             padding: 20px;
             font-family: Arial, sans-serif;
+            margin: 0;
         }
 
         .header {
             color: #4285f4;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .brainrot-display {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            text-align: center;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        /* TODO: You add the risk-high, risk-medium, etc. classes */
+
+        #output {
+            margin-top: 15px;
+        }
+
+        #testBtn {
+            width: 100%;
+            padding: 12px;
+            background: #4285f4;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        #testBtn:hover {
+            background: #3367d6;
         }
     </style>
 </head>
 
 <body>
-    <h2 class="header">🧠 Brainrot Shield</h2>
-    <p>Extension is working!</p>
-    <button onclick="alert('Button works!')">Test Button</button>
+    <div class="header">
+        <h2>Brainrot Shield</h2>
+        <p>AI-Powered Content Analysis</p>
+    </div>
+
+    <button id="testBtn">Analyze Current Site</button>
+
+    <div id="output">
+        Click button to analyze current website
+    </div>
+
+    <script src="popup.js"></script>
 </body>
 
 </html>
