@@ -3,13 +3,23 @@
     "name": "Brainrot Shield Test",
     "version": "1.0",
     "description": "Testing our first extension",
-    "permissions": ["tabs"],
+    "permissions": ["tabs", "activeTab"],
+    "host_permissions": ["https://generativelanguage.googleapis.com/*"],
+    "background": {
+      "service_worker": "background.js"
+    },
     "content_scripts": [
-      {
-        "matches": ["https://www.instagram.com/*"],
-        "js": ["content.js"]
-      }
-    ],
+        {
+          "matches": [
+            "https://www.instagram.com/*",
+            "https://www.tiktok.com/*", 
+            "https://www.youtube.com/*",
+            "https://twitter.com/*",
+            "https://x.com/*"
+          ],
+          "js": ["content.js"]
+        }
+      ],
     "action": {
       "default_popup": "popup.html"
     },
