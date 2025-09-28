@@ -236,8 +236,8 @@ function createEducationalPopup(platformName) {
     top: 20px !important;
     right: 20px !important;
     width: 280px !important;
-    min-height: 240px !important;
-    max-height: 350px !important;
+    min-height: 360px !important;
+    max-height: 480px !important;
     background-color: white !important;
     border: 3px solid #4285f4 !important;
     border-radius: 15px !important;
@@ -258,6 +258,9 @@ function createEducationalPopup(platformName) {
     box-sizing: border-box !important;
   `;
 
+  // Force pixelated font on all child elements for X/Twitter
+  popup.style.setProperty('font-family', "'Press Start 2P', 'Courier New', 'Monaco', monospace", 'important');
+
   // Add content with your custom GIF (with fallback)
   let gifSrc = "";
   try {
@@ -276,17 +279,17 @@ function createEducationalPopup(platformName) {
   }
 
   popup.innerHTML = `
-    <div style="margin-bottom: 2px; flex-shrink: 0;">
+    <div style="margin-bottom: -20px; flex-shrink: 0;">
       <img id="brainrot-mascot-gif"
            src="${gifSrc}"
            style="width: 100px; height: 100px;"
            alt="Educational Mascot">
     </div>
-    <div style="margin: 8px 0; flex-shrink: 0; display: flex; justify-content: center;" id="logo-container">
+    <div style="margin: -20px 0; flex-shrink: 0; display: flex; justify-content: center;" id="logo-container">
     </div>
-    <p style="font-size: 8px; color: #000; margin: 3px 0; flex-shrink: 0;">ANALYZING ${platformName.toUpperCase()} EDUCATIONAL VALUE...</p>
-    <div id="analysis-text" style="color: #000; font-size: 8px; line-height: 1.4; flex: 1; overflow-y: auto; word-wrap: break-word; margin: 8px 0; min-height: 60px;">DETECTING LEARNING POTENTIAL...</div>
-    <button id="close-popup" style="margin-top: 8px; padding: 8px 12px; background: #f44; color: white; border: none; border-radius: 3px; cursor: pointer; font-size: 8px; flex-shrink: 0; font-family: 'Press Start 2P', 'Courier New', 'Monaco', monospace;">CLOSE</button>
+    <p style="font-size: 8px; color: #000; margin: 5px 0; flex-shrink: 0; font-family: 'Press Start 2P', 'Courier New', 'Monaco', monospace;">ANALYZING ${platformName.toUpperCase()} EDUCATIONAL VALUE...</p>
+    <div id="analysis-text" style="color: #000 !important; font-size: 12px !important; line-height: 1.3 !important; flex: 1; overflow-y: auto; word-wrap: break-word; margin: 8px 0; min-height: 40px; font-family: 'Press Start 2P', 'Courier New', 'Monaco', monospace !important;">DETECTING LEARNING POTENTIAL...</div>
+    <button id="close-popup" style="margin-top: 1px; padding: 6px 10px; background: #f44; color: white; border: none; border-radius: 3px; cursor: pointer; font-size: 8px; flex-shrink: 0; font-family: 'Press Start 2P', 'Courier New', 'Monaco', monospace;">CLOSE</button>
   `;
 
   // Add close functionality
@@ -311,17 +314,23 @@ function createEducationalPopup(platformName) {
   document.body.appendChild(popup);
   console.log("Popup appended to DOM:", popup);
 
-  // Add brainguard.gif logo as the title
+  // Force pixelated font on all elements inside popup for X/Twitter
+  const allElements = popup.querySelectorAll('*');
+  allElements.forEach(element => {
+    element.style.setProperty('font-family', "'Press Start 2P', 'Courier New', 'Monaco', monospace", 'important');
+  });
+
+  // Add brainboost.png logo as the title
   const logoContainer = popup.querySelector("#logo-container");
   if (logoContainer) {
     try {
       if (chrome && chrome.runtime && chrome.runtime.getURL) {
-        const brainguardSrc = chrome.runtime.getURL("images/brainguard.gif");
-        logoContainer.innerHTML = `<img src="${brainguardSrc}" style="height: 40px; width: auto;" alt="Brain Guard Logo">`;
+        const brainboostSrc = chrome.runtime.getURL("images/brainboostpngversion.png");
+        logoContainer.innerHTML = `<img src="${brainboostSrc}" style="height: 160px; width: auto;" alt="Brain Boost Logo">`;
       }
     } catch (e) {
-      console.log("Could not load brainguard.gif");
-      logoContainer.innerHTML = `<div style="height: 40px; width: 120px; background: #4285f4; color: white; display: flex; align-items: center; justify-content: center; font-size: 10px; font-family: 'Press Start 2P', monospace;">LOGO</div>`;
+      console.log("Could not load brainboostpngversion.png");
+      logoContainer.innerHTML = `<div style="height: 40px; width: 120px; background: #4285f4; color: white; display: flex; align-items: center; justify-content: center; font-size: 10px; font-family: 'Press Start 2P', monospace;">BRAIN BOOST</div>`;
     }
   }
 
@@ -452,7 +461,7 @@ function updatePopupWithResults(popup, educationalLevel, analysis, score) {
   if (educationalLevel === "HIGH") {
     popup.style.borderColor = "#28a745"; // Green for high educational value
     popup.style.boxShadow = "0 8px 16px rgba(40,167,69,0.3)";
-    analysisText.innerHTML = `<strong style="color: #28a745;">🎓 HIGHLY EDUCATIONAL${scoreDisplay}</strong><br><small>${analysis}</small>`;
+    analysisText.innerHTML = `<strong style="color: #28a745; font-family: 'Press Start 2P', 'Courier New', 'Monaco', monospace !important;">HIGHLY EDUCATIONAL${scoreDisplay}</strong><br><small style="font-family: 'Press Start 2P', 'Courier New', 'Monaco', monospace !important;">${analysis}</small>`;
 
     // Use Billy2000.gif for high educational value (happy Billy)
     const gif = popup.querySelector("#brainrot-mascot-gif");
@@ -467,21 +476,21 @@ function updatePopupWithResults(popup, educationalLevel, analysis, score) {
         window.mediumGifInterval = null;
       }
 
-      // Use Billy2000.gif for high educational value (happy Billy)
+      // Use kawaii billy gif for high educational value (happy Billy)
       try {
         if (chrome && chrome.runtime && chrome.runtime.getURL) {
-          gif.src = chrome.runtime.getURL("images/Billy2000.gif");
-          console.log("Switched to Billy2000.gif for high educational value");
+          gif.src = chrome.runtime.getURL("images/KawaiiBilly.gif");
+          console.log("Switched to KawaiiBilly.gif for high educational value");
         } else {
           console.log("Chrome runtime not available, keeping original gif");
         }
       } catch (e) {
-        console.error("Error loading Billy2000.gif:", e);
+        console.error("Error loading KawaiiBilly.gif:", e);
       }
 
-      // Start fast celebration gif animation loop (happy effect)
+      // Start fast celebration gif animation loop (kawaii effect)
       window.gifLoopInterval = setInterval(() => {
-        if (gif.src.includes("Billy2000.gif")) {
+        if (gif.src.includes("KawaiiBilly.gif")) {
           gif.src = gif.src.split("?")[0] + "?t=" + Date.now();
         }
       }, 400); // Fast celebration
@@ -489,7 +498,7 @@ function updatePopupWithResults(popup, educationalLevel, analysis, score) {
   } else if (educationalLevel === "MODERATE") {
     popup.style.borderColor = "#fd7e14"; // Orange for moderate educational value
     popup.style.boxShadow = "0 8px 16px rgba(253,126,20,0.3)";
-    analysisText.innerHTML = `<strong style="color: #fd7e14;">📚 SOMEWHAT EDUCATIONAL${scoreDisplay}</strong><br><small>${analysis}</small>`;
+    analysisText.innerHTML = `<strong style="color: #fd7e14; font-family: 'Press Start 2P', 'Courier New', 'Monaco', monospace !important;">SOMEWHAT EDUCATIONAL${scoreDisplay}</strong><br><small style="font-family: 'Press Start 2P', 'Courier New', 'Monaco', monospace !important;">${analysis}</small>`;
 
     // Use Billy Medium gif for moderate educational value
     const gif = popup.querySelector("#brainrot-mascot-gif");
@@ -529,7 +538,7 @@ function updatePopupWithResults(popup, educationalLevel, analysis, score) {
     // LOW educational value - use red for disappointment and BillyRIP.gif
     popup.style.borderColor = "#dc3545"; // Red for low educational value
     popup.style.boxShadow = "0 8px 16px rgba(220,53,69,0.3)";
-    analysisText.innerHTML = `<strong style="color: #dc3545;">LOW EDUCATIONAL VALUE${scoreDisplay}</strong><br><small>${analysis}</small>`;
+    analysisText.innerHTML = `<strong style="color: #dc3545; font-family: 'Press Start 2P', 'Courier New', 'Monaco', monospace !important;">LOW EDUCATIONAL VALUE${scoreDisplay}</strong><br><small style="font-family: 'Press Start 2P', 'Courier New', 'Monaco', monospace !important;">${analysis}</small>`;
 
     // Use BillyRIP.gif for low educational value (sad Billy)
     const gif = popup.querySelector("#brainrot-mascot-gif");
