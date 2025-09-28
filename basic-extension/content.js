@@ -1,8 +1,17 @@
-console.log("Brainrot Shield running on:", window.location.hostname);
+console.log("Brain Boost running on:", window.location.hostname);
+console.log("Full URL:", window.location.href);
 
 // Detect multiple platforms
 const platform = getPlatformName();
 console.log("Detected platform:", platform);
+
+// Extra debugging for YouTube
+if (window.location.hostname.includes("youtube")) {
+  console.log(
+    "YouTube detected - checking if content script is running properly"
+  );
+  console.log("Document ready state:", document.readyState);
+}
 
 // Global toggle state
 let isPopupVisible = false;
@@ -11,13 +20,34 @@ let isPopupVisible = false;
 document.addEventListener("keydown", function (event) {
   if (event.ctrlKey && event.shiftKey && event.key === "B") {
     event.preventDefault();
-    toggleBrainrotPopup();
+    toggleEducationalAnalysis();
   }
 });
 
 // Add floating toggle button
 if (platform) {
-  createToggleButton();
+  console.log("Creating toggle button for platform:", platform);
+
+  // YouTube is a SPA, so we may need a delay and monitoring
+  if (platform === "YouTube") {
+    setTimeout(() => {
+      console.log("Creating YouTube toggle button after delay");
+      createToggleButton();
+
+      // Monitor for YouTube navigation changes and recreate button if needed
+      setInterval(() => {
+        const existingBtn = document.getElementById("brainrot-toggle-btn");
+        if (!existingBtn || !document.body.contains(existingBtn)) {
+          console.log("Toggle button missing on YouTube, recreating...");
+          createToggleButton();
+        }
+      }, 3000);
+    }, 2000);
+  } else {
+    createToggleButton();
+  }
+} else {
+  console.log("Platform not supported, toggle button not created");
 }
 
 function getPlatformName() {
@@ -30,8 +60,8 @@ function getPlatformName() {
   return null; // Not a supported platform
 }
 
-function toggleBrainrotPopup() {
-  const existingPopup = document.getElementById("brainrot-popup");
+function toggleEducationalAnalysis() {
+  const existingPopup = document.getElementById("educational-popup");
 
   if (existingPopup) {
     // Hide popup
@@ -56,7 +86,7 @@ function toggleBrainrotPopup() {
     // Show popup and analyze current content
     isPopupVisible = true;
     console.log("Showing popup and analyzing content");
-    createBrainrotPopup(platform);
+    createEducationalPopup(platform);
   }
 }
 
@@ -68,18 +98,22 @@ function createToggleButton() {
   const toggleBtn = document.createElement("div");
   toggleBtn.id = "brainrot-toggle-btn";
 
+  // Special positioning for YouTube to avoid conflicts
+  const isYouTube = window.location.hostname.includes("youtube");
+  console.log("Creating button for YouTube:", isYouTube);
+
   // Add Billy.png image instead of emoji
   let billySrc = "";
   try {
     if (chrome && chrome.runtime && chrome.runtime.getURL) {
       billySrc = chrome.runtime.getURL("images/Billy.png");
     } else {
-      // Fallback to brain emoji if image fails to load
-      toggleBtn.innerHTML = "🧠";
+      // Fallback to text if image fails to load
+      toggleBtn.innerHTML = "BS";
       return;
     }
   } catch (e) {
-    toggleBtn.innerHTML = "🧠";
+    toggleBtn.innerHTML = "BS";
     return;
   }
 
@@ -89,16 +123,19 @@ function createToggleButton() {
     toggleBtn.innerHTML = `<img src="${billySrc}" style="width: 30px !important; height: 30px !important; border-radius: 50% !important; object-fit: cover !important; flex-shrink: 0 !important; position: relative !important; left: 0 !important; right: 0 !important; top: 0 !important; bottom: 0 !important; margin: 0 !important; padding: 0 !important;" alt="Billy Toggle">`;
   };
   testImg.onerror = () => {
-    console.log("Billy.png failed to load, using brain emoji fallback");
-    toggleBtn.innerHTML = "🧠";
+    console.log("Billy.png failed to load, using text fallback");
+    toggleBtn.innerHTML = "BS";
   };
   testImg.src = billySrc;
 
-  // Style the toggle button with !important to override TikTok CSS
+  // Style the toggle button with platform-specific positioning
+  const bottomPos = isYouTube ? "80px" : "20px"; // Higher on YouTube to avoid UI conflicts
+  const rightPos = isYouTube ? "30px" : "20px"; // More spacing on YouTube
+
   toggleBtn.style.cssText = `
     position: fixed !important;
-    bottom: 20px !important;
-    right: 20px !important;
+    bottom: ${bottomPos} !important;
+    right: ${rightPos} !important;
     width: 50px !important;
     height: 50px !important;
     border-radius: 50% !important;
@@ -111,7 +148,7 @@ function createToggleButton() {
     justify-content: center !important;
     cursor: pointer !important;
     box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important;
-    z-index: 9999 !important;
+    z-index: 2147483647 !important;
     transition: transform 0.2s ease !important;
     margin: 0 !important;
     padding: 0 !important;
@@ -120,8 +157,18 @@ function createToggleButton() {
     text-align: center !important;
     line-height: 1 !important;
     box-sizing: border-box !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    transform: none !important;
+    top: auto !important;
+    left: auto !important;
+    min-width: 50px !important;
+    min-height: 50px !important;
+    max-width: 50px !important;
+    max-height: 50px !important;
   `;
-  toggleBtn.title = "TOGGLE BRAINROT ANALYSIS (CTRL+SHIFT+B)";
+  toggleBtn.title = "TOGGLE EDUCATIONAL VALUE ANALYSIS (CTRL+SHIFT+B)";
 
   // Add hover effect
   toggleBtn.addEventListener("mouseenter", () => {
@@ -134,18 +181,36 @@ function createToggleButton() {
 
   // Add click handler
   toggleBtn.addEventListener("click", () => {
-    toggleBrainrotPopup();
+    toggleEducationalAnalysis();
   });
 
-  document.body.appendChild(toggleBtn);
-  console.log("Toggle button created");
+  // Append to document body, but for YouTube try to ensure it's visible
+  if (isYouTube) {
+    // Try to append to html element instead of body for YouTube
+    const htmlElement = document.documentElement;
+    htmlElement.appendChild(toggleBtn);
+    console.log(
+      "Toggle button created for YouTube and appended to HTML element"
+    );
+
+    // Force a reflow to ensure visibility
+    setTimeout(() => {
+      toggleBtn.style.display = "none";
+      toggleBtn.offsetHeight; // Force reflow
+      toggleBtn.style.display = "flex";
+      console.log("YouTube button visibility forced");
+    }, 100);
+  } else {
+    document.body.appendChild(toggleBtn);
+    console.log("Toggle button created for", platform);
+  }
 }
 
-function createBrainrotPopup(platformName) {
-  console.log("createBrainrotPopup called for:", platformName);
+function createEducationalPopup(platformName) {
+  console.log("createEducationalPopup called for:", platformName);
 
   // Check if popup already exists
-  const existingPopup = document.getElementById("brainrot-popup");
+  const existingPopup = document.getElementById("educational-popup");
   if (existingPopup) {
     console.log("Popup already exists, removing it");
     existingPopup.remove();
@@ -163,27 +228,35 @@ function createBrainrotPopup(platformName) {
 
   // Create popup container
   const popup = document.createElement("div");
-  popup.id = "brainrot-popup";
+  popup.id = "educational-popup";
 
-  // Style the popup
-  popup.style.position = "fixed";
-  popup.style.top = "20px";
-  popup.style.right = "20px";
-  popup.style.width = "280px";
-  popup.style.minHeight = "200px";
-  popup.style.maxHeight = "300px";
-  popup.style.backgroundColor = "white";
-  popup.style.border = "3px solid #4285f4";
-  popup.style.borderRadius = "15px";
-  popup.style.padding = "15px";
-  popup.style.zIndex = "10000";
-  popup.style.boxShadow = "0 8px 16px rgba(0,0,0,0.3)";
-  popup.style.fontFamily =
-    "'Press Start 2P', 'Courier New', 'Monaco', monospace";
-  popup.style.textAlign = "center";
-  popup.style.overflow = "hidden";
-  popup.style.display = "flex";
-  popup.style.flexDirection = "column";
+  // Style the popup with !important to prevent platform interference
+  popup.style.cssText = `
+    position: fixed !important;
+    top: 20px !important;
+    right: 20px !important;
+    width: 280px !important;
+    min-height: 240px !important;
+    max-height: 350px !important;
+    background-color: white !important;
+    border: 3px solid #4285f4 !important;
+    border-radius: 15px !important;
+    padding: 15px !important;
+    z-index: 999999 !important;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.3) !important;
+    font-family: 'Press Start 2P', 'Courier New', 'Monaco', monospace !important;
+    text-align: center !important;
+    overflow: hidden !important;
+    display: flex !important;
+    flex-direction: column !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    transform: none !important;
+    margin: 0 !important;
+    left: auto !important;
+    bottom: auto !important;
+    box-sizing: border-box !important;
+  `;
 
   // Add content with your custom GIF (with fallback)
   let gifSrc = "";
@@ -207,12 +280,13 @@ function createBrainrotPopup(platformName) {
       <img id="brainrot-mascot-gif"
            src="${gifSrc}"
            style="width: 100px; height: 100px;"
-           alt="Brainrot Mascot">
+           alt="Educational Mascot">
     </div>
-    <h3 style="margin: 8px 0; color: #000; font-size: 12px; flex-shrink: 0;">BRAIN SHIELD</h3>
-    <p style="font-size: 8px; color: #000; margin: 3px 0; flex-shrink: 0;">ANALYZING ${platformName.toUpperCase()}...</p>
-    <div id="analysis-text" style="color: #000; font-size: 8px; line-height: 1.4; flex: 1; overflow-y: auto; word-wrap: break-word; margin: 8px 0;">AI IS THINKING...</div>
-    <button id="close-popup" style="margin-top: 8px; padding: 8px 12px; background: #f44; color: white; border: none; border-radius: 3px; cursor: pointer; font-size: 8px; flex-shrink: 0;">CLOSE</button>
+    <div style="margin: 8px 0; flex-shrink: 0; display: flex; justify-content: center;" id="logo-container">
+    </div>
+    <p style="font-size: 8px; color: #000; margin: 3px 0; flex-shrink: 0;">ANALYZING ${platformName.toUpperCase()} EDUCATIONAL VALUE...</p>
+    <div id="analysis-text" style="color: #000; font-size: 8px; line-height: 1.4; flex: 1; overflow-y: auto; word-wrap: break-word; margin: 8px 0; min-height: 60px;">DETECTING LEARNING POTENTIAL...</div>
+    <button id="close-popup" style="margin-top: 8px; padding: 8px 12px; background: #f44; color: white; border: none; border-radius: 3px; cursor: pointer; font-size: 8px; flex-shrink: 0; font-family: 'Press Start 2P', 'Courier New', 'Monaco', monospace;">CLOSE</button>
   `;
 
   // Add close functionality
@@ -236,6 +310,20 @@ function createBrainrotPopup(platformName) {
 
   document.body.appendChild(popup);
   console.log("Popup appended to DOM:", popup);
+
+  // Add brainguard.gif logo as the title
+  const logoContainer = popup.querySelector("#logo-container");
+  if (logoContainer) {
+    try {
+      if (chrome && chrome.runtime && chrome.runtime.getURL) {
+        const brainguardSrc = chrome.runtime.getURL("images/brainguard.gif");
+        logoContainer.innerHTML = `<img src="${brainguardSrc}" style="height: 40px; width: auto;" alt="Brain Guard Logo">`;
+      }
+    } catch (e) {
+      console.log("Could not load brainguard.gif");
+      logoContainer.innerHTML = `<div style="height: 40px; width: 120px; background: #4285f4; color: white; display: flex; align-items: center; justify-content: center; font-size: 10px; font-family: 'Press Start 2P', monospace;">LOGO</div>`;
+    }
+  }
 
   // START GIF INFINITE LOOP
   const gif = popup.querySelector("#brainrot-mascot-gif");
@@ -270,7 +358,7 @@ function createBrainrotPopup(platformName) {
     // Send to background script for AI analysis
     chrome.runtime.sendMessage(
       {
-        action: "analyzeBrainrot",
+        action: "analyzeEducationalValue",
         data: {
           platform: platformName,
           text: pageText,
@@ -357,16 +445,16 @@ function getPageContent(platformName) {
   }
 }
 
-function updatePopupWithResults(popup, riskLevel, analysis, score) {
+function updatePopupWithResults(popup, educationalLevel, analysis, score) {
   const analysisText = popup.querySelector("#analysis-text");
   const scoreDisplay = score ? ` (${score}/100)` : "";
 
-  if (riskLevel === "HIGH") {
-    popup.style.borderColor = "red";
-    popup.style.boxShadow = "0 8px 16px rgba(255,0,0,0.3)";
-    analysisText.innerHTML = `<strong style="color: red;">🚨 HIGH BRAINROT${scoreDisplay}</strong><br><small>${analysis}</small>`;
+  if (educationalLevel === "HIGH") {
+    popup.style.borderColor = "#28a745"; // Green for high educational value
+    popup.style.boxShadow = "0 8px 16px rgba(40,167,69,0.3)";
+    analysisText.innerHTML = `<strong style="color: #28a745;">🎓 HIGHLY EDUCATIONAL${scoreDisplay}</strong><br><small>${analysis}</small>`;
 
-    // Change to Billy RIP gif for high brainrot
+    // Use Billy2000.gif for high educational value (happy Billy)
     const gif = popup.querySelector("#brainrot-mascot-gif");
     if (gif) {
       // Stop all other GIF loops
@@ -379,31 +467,31 @@ function updatePopupWithResults(popup, riskLevel, analysis, score) {
         window.mediumGifInterval = null;
       }
 
-      // Switch to BillyRIP.gif for high brainrot
+      // Use Billy2000.gif for high educational value (happy Billy)
       try {
         if (chrome && chrome.runtime && chrome.runtime.getURL) {
-          gif.src = chrome.runtime.getURL("images/BillyRIP.gif");
-          console.log("Switched to BillyRIP.gif for high brainrot");
+          gif.src = chrome.runtime.getURL("images/Billy2000.gif");
+          console.log("Switched to Billy2000.gif for high educational value");
         } else {
           console.log("Chrome runtime not available, keeping original gif");
         }
       } catch (e) {
-        console.error("Error loading BillyRIP.gif:", e);
+        console.error("Error loading Billy2000.gif:", e);
       }
 
-      // Start slower RIP gif animation loop (dramatic effect)
-      window.ripGifInterval = setInterval(() => {
-        if (gif.src.includes("BillyRIP.gif")) {
+      // Start fast celebration gif animation loop (happy effect)
+      window.gifLoopInterval = setInterval(() => {
+        if (gif.src.includes("Billy2000.gif")) {
           gif.src = gif.src.split("?")[0] + "?t=" + Date.now();
         }
-      }, 1000);
+      }, 400); // Fast celebration
     }
-  } else if (riskLevel === "MODERATE") {
-    popup.style.borderColor = "orange";
-    popup.style.boxShadow = "0 8px 16px rgba(255,165,0,0.3)";
-    analysisText.innerHTML = `<strong style="color: orange;">⚠️ MODERATE BRAINROT${scoreDisplay}</strong><br><small>${analysis}</small>`;
+  } else if (educationalLevel === "MODERATE") {
+    popup.style.borderColor = "#fd7e14"; // Orange for moderate educational value
+    popup.style.boxShadow = "0 8px 16px rgba(253,126,20,0.3)";
+    analysisText.innerHTML = `<strong style="color: #fd7e14;">📚 SOMEWHAT EDUCATIONAL${scoreDisplay}</strong><br><small>${analysis}</small>`;
 
-    // Change to Billy Medium gif for moderate brainrot
+    // Use Billy Medium gif for moderate educational value
     const gif = popup.querySelector("#brainrot-mascot-gif");
     if (gif) {
       // Stop all other GIF loops
@@ -416,11 +504,13 @@ function updatePopupWithResults(popup, riskLevel, analysis, score) {
         window.ripGifInterval = null;
       }
 
-      // Switch to BillyMedium.gif for moderate brainrot
+      // Use BillyMedium.gif for moderate educational value
       try {
         if (chrome && chrome.runtime && chrome.runtime.getURL) {
           gif.src = chrome.runtime.getURL("images/BillyMedium.gif");
-          console.log("Switched to BillyMedium.gif for moderate brainrot");
+          console.log(
+            "Switched to BillyMedium.gif for moderate educational value"
+          );
         } else {
           console.log("Chrome runtime not available, keeping original gif");
         }
@@ -428,49 +518,83 @@ function updatePopupWithResults(popup, riskLevel, analysis, score) {
         console.error("Error loading BillyMedium.gif:", e);
       }
 
-      // Start medium gif animation loop (moderate speed)
+      // Start medium gif animation loop (moderate enthusiasm)
       window.mediumGifInterval = setInterval(() => {
         if (gif.src.includes("BillyMedium.gif")) {
           gif.src = gif.src.split("?")[0] + "?t=" + Date.now();
         }
-      }, 750); // Between normal (500ms) and RIP (1000ms) speed
+      }, 600); // Moderate speed for moderate educational value
     }
   } else {
-    popup.style.borderColor = "green";
-    popup.style.boxShadow = "0 8px 16px rgba(0,255,0,0.3)";
-    analysisText.innerHTML = `<strong style="color: green;">✅ BRAIN SAFE${scoreDisplay}</strong><br><small>${analysis}</small>`;
+    // LOW educational value - use red for disappointment and BillyRIP.gif
+    popup.style.borderColor = "#dc3545"; // Red for low educational value
+    popup.style.boxShadow = "0 8px 16px rgba(220,53,69,0.3)";
+    analysisText.innerHTML = `<strong style="color: #dc3545;">LOW EDUCATIONAL VALUE${scoreDisplay}</strong><br><small>${analysis}</small>`;
+
+    // Use BillyRIP.gif for low educational value (sad Billy)
+    const gif = popup.querySelector("#brainrot-mascot-gif");
+    if (gif) {
+      // Stop all other GIF loops
+      if (window.gifLoopInterval) {
+        clearInterval(window.gifLoopInterval);
+        window.gifLoopInterval = null;
+      }
+      if (window.mediumGifInterval) {
+        clearInterval(window.mediumGifInterval);
+        window.mediumGifInterval = null;
+      }
+
+      // Switch to BillyRIP.gif for low educational value (disappointment)
+      try {
+        if (chrome && chrome.runtime && chrome.runtime.getURL) {
+          gif.src = chrome.runtime.getURL("images/BillyRIP.gif");
+          console.log("Switched to BillyRIP.gif for low educational value");
+        } else {
+          console.log("Chrome runtime not available, keeping original gif");
+        }
+      } catch (e) {
+        console.error("Error loading BillyRIP.gif:", e);
+      }
+
+      // Start slow disappointed gif animation loop
+      window.ripGifInterval = setInterval(() => {
+        if (gif.src.includes("BillyRIP.gif")) {
+          gif.src = gif.src.split("?")[0] + "?t=" + Date.now();
+        }
+      }, 1000); // Slow for disappointment
+    }
   }
 }
 
-function autoCleanseCurrentPlatform() {
+function highlightEducationalContent() {
   const hostname = window.location.hostname;
 
   if (hostname.includes("instagram")) {
-    hideInstagramPosts();
+    highlightInstagramContent();
   } else if (hostname.includes("tiktok")) {
-    hideTikTokVideos();
+    highlightTikTokContent();
   } else if (hostname.includes("youtube")) {
-    hideYouTubeVideos();
+    highlightYouTubeContent();
   }
 
   // Show success message
-  showCleanseSuccessMessage();
+  showEducationalBoostMessage();
 }
 
-function showCleanseSuccessMessage() {
+function showEducationalBoostMessage() {
   const successMsg = document.createElement("div");
   successMsg.style.position = "fixed";
   successMsg.style.top = "10px";
   successMsg.style.left = "50%";
   successMsg.style.transform = "translateX(-50%)";
-  successMsg.style.background = "#4CAF50";
+  successMsg.style.background = "#28a745";
   successMsg.style.color = "white";
   successMsg.style.padding = "10px 20px";
   successMsg.style.borderRadius = "5px";
   successMsg.style.zIndex = "10001";
   successMsg.style.fontWeight = "bold";
   successMsg.style.boxShadow = "0 4px 12px rgba(0,0,0,0.3)";
-  successMsg.innerHTML = "🛡️ Brainrot content automatically blocked!";
+  successMsg.innerHTML = "🎓 EDUCATIONAL CONTENT HIGHLIGHTED!";
 
   document.body.appendChild(successMsg);
 
@@ -481,30 +605,30 @@ function showCleanseSuccessMessage() {
   }, 2500);
 }
 
-function hideInstagramPosts() {
-  // Hide current post/reel
+function highlightInstagramContent() {
+  // Highlight educational posts/reels
   const posts = document.querySelectorAll('article, [role="presentation"]');
   posts.forEach((post) => {
     if (post.offsetHeight > 100) {
-      // Only hide actual content posts
+      // Only highlight actual content posts
       post.style.opacity = "0.3";
       post.style.filter = "blur(5px)";
       post.style.pointerEvents = "none";
 
-      // Add overlay message
+      // Add educational highlight overlay
       const overlay = document.createElement("div");
       overlay.style.position = "absolute";
       overlay.style.top = "50%";
       overlay.style.left = "50%";
       overlay.style.transform = "translate(-50%, -50%)";
-      overlay.style.background = "rgba(255, 0, 0, 0.9)";
+      overlay.style.background = "rgba(40, 167, 69, 0.9)";
       overlay.style.color = "white";
       overlay.style.padding = "20px";
       overlay.style.borderRadius = "10px";
       overlay.style.zIndex = "1000";
       overlay.style.textAlign = "center";
       overlay.innerHTML =
-        "🧠 BRAINROT BLOCKED<br><small>Content hidden by Brainrot Shield</small>";
+        "🎓 EDUCATIONAL CONTENT<br><small>Highlighted by Brain Boost</small>";
 
       post.style.position = "relative";
       post.appendChild(overlay);
@@ -512,8 +636,8 @@ function hideInstagramPosts() {
   });
 }
 
-function hideTikTokVideos() {
-  // Hide TikTok videos
+function highlightTikTokContent() {
+  // Highlight educational TikTok videos
   const videos = document.querySelectorAll(
     '[data-e2e="recommend-list-item"], .video-feed-item'
   );
@@ -526,20 +650,20 @@ function hideTikTokVideos() {
     overlay.style.top = "50%";
     overlay.style.left = "50%";
     overlay.style.transform = "translate(-50%, -50%)";
-    overlay.style.background = "rgba(255, 0, 0, 0.9)";
+    overlay.style.background = "rgba(40, 167, 69, 0.9)";
     overlay.style.color = "white";
     overlay.style.padding = "15px";
     overlay.style.borderRadius = "8px";
     overlay.style.zIndex = "1000";
-    overlay.innerHTML = "⛔ BRAINROT DETECTED";
+    overlay.innerHTML = "🎓 EDUCATIONAL CONTENT";
 
     video.style.position = "relative";
     video.appendChild(overlay);
   });
 }
 
-function hideYouTubeVideos() {
-  // Hide YouTube video thumbnails
+function highlightYouTubeContent() {
+  // Highlight educational YouTube videos
   const videos = document.querySelectorAll(
     "ytd-video-renderer, ytd-rich-item-renderer"
   );
@@ -554,13 +678,13 @@ function hideYouTubeVideos() {
       overlay.style.left = "0";
       overlay.style.right = "0";
       overlay.style.bottom = "0";
-      overlay.style.background = "rgba(255, 0, 0, 0.8)";
+      overlay.style.background = "rgba(40, 167, 69, 0.8)";
       overlay.style.color = "white";
       overlay.style.display = "flex";
       overlay.style.alignItems = "center";
       overlay.style.justifyContent = "center";
       overlay.style.zIndex = "1000";
-      overlay.innerHTML = "🚫 BRAINROT BLOCKED";
+      overlay.innerHTML = "🎓 EDUCATIONAL CONTENT";
 
       video.style.position = "relative";
       video.appendChild(overlay);

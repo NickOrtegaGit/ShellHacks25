@@ -1,14 +1,14 @@
 // background.js - handles API calls
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    if (request.action === 'analyzeBrainrot') {
-      analyzeBrainrotContent(request.data)
+    if (request.action === 'analyzeEducationalValue') {
+      analyzeEducationalContent(request.data)
         .then(result => sendResponse(result))
         .catch(error => sendResponse({ error: error.message }));
       return true; // Keep message channel open for async response
     }
   });
-  
-  async function analyzeBrainrotContent(contentData) {
+
+  async function analyzeEducationalContent(contentData) {
     const API_KEY = 'AIzaSyDaYOrSWaRosY3wiwlOfQQTKKd9hGmkcp0'; // TODO: Move to environment variable
 
     console.log('Starting API call with data:', contentData);
@@ -22,16 +22,18 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         body: JSON.stringify({
           contents: [{
             parts: [{
-              text: `Analyze this social media content for "brainrot" level (0-100 scale):
-              
+              text: `Analyze this social media content for EDUCATIONAL VALUE (0-100 scale):
+
               Platform: ${contentData.platform}
               Content: "${contentData.text}"
-              
-              Rate this content's brainrot level where:
-              - 0-30 = Educational/meaningful content
-              - 31-60 = Entertainment but harmless
-              - 61-80 = Mindless but not harmful
-              - 81-100 = Pure brainrot (mindless, addictive, no value)
+
+              Rate this content's educational value where:
+              - 0-30 = Low educational value (entertainment/mindless content)
+              - 31-60 = Some educational elements (moderate learning potential)
+              - 61-80 = Good educational content (teaches valuable skills/knowledge)
+              - 81-100 = Highly educational (excellent learning, skill development, knowledge sharing)
+
+              Consider: Does this content teach something valuable? Share knowledge? Develop skills? Provide intellectual stimulation? Encourage learning?
 
               Respond with exactly: SCORE: [number] | REASON: [max 6 words explanation]`
             }]
@@ -73,6 +75,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       
     } catch (error) {
       console.error('Analysis error:', error);
-      return { error: 'Analysis failed', score: 50, reason: 'Could not analyze content' };
+      return { error: 'Analysis failed', score: 50, reason: 'Could not analyze educational value' };
     }
   }

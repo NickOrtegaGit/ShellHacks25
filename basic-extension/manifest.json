@@ -1,8 +1,8 @@
 {
     "manifest_version": 3,
-    "name": "Brainrot Shield Test",
+    "name": "Brain Boost - Educational Content Detector",
     "version": "1.0",
-    "description": "Testing our first extension",
+    "description": "Detects and celebrates educational content across social media platforms",
     "permissions": ["tabs", "activeTab"],
     "host_permissions": ["https://generativelanguage.googleapis.com/*"],
     "background": {
