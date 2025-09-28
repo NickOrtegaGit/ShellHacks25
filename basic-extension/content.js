@@ -86,7 +86,7 @@ function createToggleButton() {
   // Create the image and test if it loads
   const testImg = new Image();
   testImg.onload = () => {
-    toggleBtn.innerHTML = `<img src="${billySrc}" style="width: 30px; height: 30px; border-radius: 50%;" alt="Billy Toggle">`;
+    toggleBtn.innerHTML = `<img src="${billySrc}" style="width: 30px !important; height: 30px !important; border-radius: 50% !important; object-fit: cover !important; flex-shrink: 0 !important; position: relative !important; left: 0 !important; right: 0 !important; top: 0 !important; bottom: 0 !important; margin: 0 !important; padding: 0 !important;" alt="Billy Toggle">`;
   };
   testImg.onerror = () => {
     console.log("Billy.png failed to load, using brain emoji fallback");
@@ -94,24 +94,34 @@ function createToggleButton() {
   };
   testImg.src = billySrc;
 
-  // Style the toggle button
-  toggleBtn.style.position = "fixed";
-  toggleBtn.style.bottom = "20px";
-  toggleBtn.style.right = "20px";
-  toggleBtn.style.width = "50px";
-  toggleBtn.style.height = "50px";
-  toggleBtn.style.borderRadius = "50%";
-  toggleBtn.style.backgroundColor = "#4285f4";
-  toggleBtn.style.color = "white";
-  toggleBtn.style.fontSize = "24px";
-  toggleBtn.style.display = "flex";
-  toggleBtn.style.alignItems = "center";
-  toggleBtn.style.justifyContent = "center";
-  toggleBtn.style.cursor = "pointer";
-  toggleBtn.style.boxShadow = "0 4px 12px rgba(0,0,0,0.3)";
-  toggleBtn.style.zIndex = "9999";
-  toggleBtn.style.transition = "transform 0.2s ease";
-  toggleBtn.title = "Toggle Brainrot Analysis (Ctrl+Shift+B)";
+  // Style the toggle button with !important to override TikTok CSS
+  toggleBtn.style.cssText = `
+    position: fixed !important;
+    bottom: 20px !important;
+    right: 20px !important;
+    width: 50px !important;
+    height: 50px !important;
+    border-radius: 50% !important;
+    background-color: #4285f4 !important;
+    color: white !important;
+    font-size: 24px !important;
+    font-family: 'Press Start 2P', 'Courier New', monospace !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important;
+    z-index: 9999 !important;
+    transition: transform 0.2s ease !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    outline: none !important;
+    text-align: center !important;
+    line-height: 1 !important;
+    box-sizing: border-box !important;
+  `;
+  toggleBtn.title = "TOGGLE BRAINROT ANALYSIS (CTRL+SHIFT+B)";
 
   // Add hover effect
   toggleBtn.addEventListener("mouseenter", () => {
@@ -141,6 +151,16 @@ function createBrainrotPopup(platformName) {
     existingPopup.remove();
   }
 
+  // Add pixelated font to page if not already added
+  if (!document.getElementById("pixelated-font-link")) {
+    const fontLink = document.createElement("link");
+    fontLink.id = "pixelated-font-link";
+    fontLink.rel = "stylesheet";
+    fontLink.href =
+      "https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap";
+    document.head.appendChild(fontLink);
+  }
+
   // Create popup container
   const popup = document.createElement("div");
   popup.id = "brainrot-popup";
@@ -158,7 +178,8 @@ function createBrainrotPopup(platformName) {
   popup.style.padding = "15px";
   popup.style.zIndex = "10000";
   popup.style.boxShadow = "0 8px 16px rgba(0,0,0,0.3)";
-  popup.style.fontFamily = "Arial, sans-serif";
+  popup.style.fontFamily =
+    "'Press Start 2P', 'Courier New', 'Monaco', monospace";
   popup.style.textAlign = "center";
   popup.style.overflow = "hidden";
   popup.style.display = "flex";
@@ -182,16 +203,16 @@ function createBrainrotPopup(platformName) {
   }
 
   popup.innerHTML = `
-    <div style="margin-bottom: 10px; flex-shrink: 0;">
+    <div style="margin-bottom: 2px; flex-shrink: 0;">
       <img id="brainrot-mascot-gif"
            src="${gifSrc}"
-           style="width: 50px; height: 50px;"
+           style="width: 100px; height: 100px;"
            alt="Brainrot Mascot">
     </div>
-    <h3 style="margin: 8px 0; color: #333; font-size: 16px; flex-shrink: 0;">🧠 Brainrot Shield</h3>
-    <p style="font-size: 11px; color: #666; margin: 3px 0; flex-shrink: 0;">Analyzing ${platformName}...</p>
-    <div id="analysis-text" style="color: #666; font-size: 12px; line-height: 1.3; flex: 1; overflow-y: auto; word-wrap: break-word; margin: 8px 0;">AI is thinking...</div>
-    <button id="close-popup" style="margin-top: 8px; padding: 6px 12px; background: #f44; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 12px; flex-shrink: 0;">Close</button>
+    <h3 style="margin: 8px 0; color: #000; font-size: 12px; flex-shrink: 0;">BRAIN SHIELD</h3>
+    <p style="font-size: 8px; color: #000; margin: 3px 0; flex-shrink: 0;">ANALYZING ${platformName.toUpperCase()}...</p>
+    <div id="analysis-text" style="color: #000; font-size: 8px; line-height: 1.4; flex: 1; overflow-y: auto; word-wrap: break-word; margin: 8px 0;">AI IS THINKING...</div>
+    <button id="close-popup" style="margin-top: 8px; padding: 8px 12px; background: #f44; color: white; border: none; border-radius: 3px; cursor: pointer; font-size: 8px; flex-shrink: 0;">CLOSE</button>
   `;
 
   // Add close functionality
@@ -220,6 +241,19 @@ function createBrainrotPopup(platformName) {
   const gif = popup.querySelector("#brainrot-mascot-gif");
   if (gif) {
     console.log("GIF element found:", gif.src);
+
+    // Add load/error handlers to debug gif loading
+    gif.onload = () => {
+      console.log("Billy gif loaded successfully!");
+    };
+    gif.onerror = () => {
+      console.error("Billy gif failed to load!");
+      // Fallback to a visible placeholder
+      gif.style.background = "white";
+      gif.style.border = "2px solid black";
+      gif.alt = "Billy (failed to load)";
+    };
+
     window.gifLoopInterval = setInterval(function () {
       // Force GIF to restart by changing its source
       gif.src = gif.src.split("?")[0] + "?t=" + Date.now();
@@ -333,7 +367,7 @@ function updatePopupWithResults(popup, riskLevel, analysis, score) {
     analysisText.innerHTML = `<strong style="color: red;">🚨 HIGH BRAINROT${scoreDisplay}</strong><br><small>${analysis}</small>`;
 
     // Change to Billy RIP gif for high brainrot
-    const gif = popup.querySelector('#brainrot-mascot-gif');
+    const gif = popup.querySelector("#brainrot-mascot-gif");
     if (gif) {
       // Stop all other GIF loops
       if (window.gifLoopInterval) {
@@ -360,7 +394,7 @@ function updatePopupWithResults(popup, riskLevel, analysis, score) {
       // Start slower RIP gif animation loop (dramatic effect)
       window.ripGifInterval = setInterval(() => {
         if (gif.src.includes("BillyRIP.gif")) {
-          gif.src = gif.src.split('?')[0] + '?t=' + Date.now();
+          gif.src = gif.src.split("?")[0] + "?t=" + Date.now();
         }
       }, 1000);
     }
@@ -370,7 +404,7 @@ function updatePopupWithResults(popup, riskLevel, analysis, score) {
     analysisText.innerHTML = `<strong style="color: orange;">⚠️ MODERATE BRAINROT${scoreDisplay}</strong><br><small>${analysis}</small>`;
 
     // Change to Billy Medium gif for moderate brainrot
-    const gif = popup.querySelector('#brainrot-mascot-gif');
+    const gif = popup.querySelector("#brainrot-mascot-gif");
     if (gif) {
       // Stop all other GIF loops
       if (window.gifLoopInterval) {
@@ -397,7 +431,7 @@ function updatePopupWithResults(popup, riskLevel, analysis, score) {
       // Start medium gif animation loop (moderate speed)
       window.mediumGifInterval = setInterval(() => {
         if (gif.src.includes("BillyMedium.gif")) {
-          gif.src = gif.src.split('?')[0] + '?t=' + Date.now();
+          gif.src = gif.src.split("?")[0] + "?t=" + Date.now();
         }
       }, 750); // Between normal (500ms) and RIP (1000ms) speed
     }
